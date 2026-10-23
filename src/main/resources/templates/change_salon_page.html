@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Изменить данные - Logjito</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+    }
+
+    main {
+        padding: 20px;
+        background-color: #ffffff;
+        margin: 20px auto;
+        width: 80%;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    input[type="text"], textarea {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    textarea {
+        resize: none;
+        height: 80px;
+    }
+
+    .category-section, .photo-upload-section {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .category-item {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+    }
+
+    .services-container {
+        margin-top: 10px;
+        padding: 10px;
+        border-left: 4px solid #6c467e;
+        background: #f8f8f8;
+        border-radius: 5px;
+    }
+
+    .service-item {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        background: #ffffff;
+        border-radius: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .service-item input {
+        flex: 1 1 30%;
+        min-width: 150px;
+    }
+
+    .add-category, .add-service, .btn-save {
+        margin-top: 10px;
+        padding: 10px 15px;
+        background-color: #6c467e;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .add-category:hover, .add-service:hover, .btn-save:hover {
+        background-color: #52335d;
+
+            .remove-btn {
+        background: none;
+        border: none;
+        color: red;
+        font-size: 18px;
+        cursor: pointer;
+        margin-right: 8px;
+    }
+
+    .remove-btn:hover {
+        color: darkred;
+    }
+
+    .service-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .category-item {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .category-item .remove-btn {
+        position: absolute;
+        left: 5px;
+        top: 5px;
+    }
+
+    .photo-upload-section {
+      background: #fff;
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      width: 300px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .photo-upload-section h3 {
+      margin-bottom: 15px;
+      color: #333;
+      font-weight: normal;
+    }
+
+    .upload-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* Контейнер для иконки */
+    .icon-button {
+      width: 50px;
+      height: 50px;
+      display: inline-block;
+      background: url("images/plus-icon.png") center/contain no-repeat;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .icon-button:hover {
+      transform: scale(1.05);
+    }
+
+    /* Превью (небольшой размер) */
+.thumbnail-container {
+  width: 80px;   /* Ширина контейнера */
+  height: 80px;  /* Высота контейнера */
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumbnail-container img {
+  max-width: 100%;   /* Максимальная ширина картинки не больше 100% от контейнера */
+  max-height: 100%;  /* Максимальная высота картинки не больше 100% от контейнера */
+  object-fit: contain; /* Изображение сохраняет пропорции и обрезается при необходимости */
+  display: block;
+}
+
+
+    /* Скрытый input */
+    #fileImage {
+      display: none;
+    }
+
+    /* Сообщение об ошибке (пример) */
+    #imageError {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+     h2 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h2>Изменить данные</h2>
+  <form action="/save" method="post" enctype="multipart/form-data">
+
+    <!-- Сохранение информации о салоне -->
+    <div class="form-group">
+      <label for="name">Название салона</label>
+      <input type="text" id="name" name="name" required>
+    </div>
+    <div class="form-group">
+      <label for="info">Дополнительная информация</label>
+      <textarea id="info" name="info" required></textarea>
+    </div>
+
+    <div class="photo-upload-section">
+      <h3>Загрузить фотографию</h3>
+      <div class="upload-container">
+
+        <!-- Кнопка (иконка) для выбора файла -->
+        <!-- for="fileImage" позволяет кликать по самой иконке -->
+        <label class="icon-button" for="fileImage"></label>
+
+        <!-- Превью (по умолчанию - плейсхолдер)-->
+        <div class="thumbnail-container">
+          <img
+                  id="thumbnail"
+                  src="images/placeholder.jpg"
+                  alt=""
+          />
+        </div>
+      </div>
+      <input type="file" id="fileImage" name="photo" accept="image/jpeg, image/png"
+      />
+
+      <!-- Сообщение об ошибке (скрыто) -->
+      <p id="imageError" hidden>Файл слишком большой (макс. 1 МБ)</p>
+    </div>
+
+
+
+
+    <!-- Добавление категорий и услуг -->
+    <div class="category-section">
+      <h3>Категории и услуги</h3>
+      <div id="categories-container">
+        <div class="category-item" data-index="0">
+          <input type="text" name="categories[0].name" placeholder="Название категории" required>
+          <div class="services-container">
+            <div class="service-item">
+              <input type="text" name="categories[0].services[0].name" placeholder="Название услуги" required>
+              <input type="text" name="categories[0].services[0].duration" placeholder="Длительность" required>
+              <input type="text" name="categories[0].services[0].price" placeholder="Цена" required>
+            </div>
+          </div>
+          <button type="button" class="add-service">Добавить услугу</button>
+        </div>
+      </div>
+      <button type="button" class="add-category">Добавить категорию</button>
+    </div>
+
+    <!-- Кнопка сохранения -->
+    <button type="submit" class="btn-save">Сохранить</button>
+  </form>
+</main>
+
+<script>
+  let categoryIndex = 0;
+
+  document.querySelector('.add-category').addEventListener('click', () => {
+    categoryIndex++;
+    const categoryContainer = document.createElement('div');
+    categoryContainer.className = 'category-item';
+    categoryContainer.dataset.index = categoryIndex;
+    categoryContainer.innerHTML = `
+      <button type="button" class="remove-btn remove-category">❌</button>
+      <input type="text" name="categories[${categoryIndex}].name" placeholder="Название категории" required>
+      <div class="services-container">
+        <div class="service-item">
+          <button type="button" class="remove-btn remove-service">❌</button>
+          <input type="text" name="categories[${categoryIndex}].services[0].name" placeholder="Название услуги" required>
+          <input type="text" name="categories[${categoryIndex}].services[0].duration" placeholder="Длительность" required>
+          <input type="text" name="categories[${categoryIndex}].services[0].price" placeholder="Цена" required>
+        </div>
+      </div>
+      <button type="button" class="add-service">Добавить услугу</button>
+    `;
+    document.getElementById('categories-container').appendChild(categoryContainer);
+
+    categoryContainer.querySelector('.add-service').addEventListener('click', addService);
+    categoryContainer.querySelector('.remove-category').addEventListener('click', removeCategory);
+    categoryContainer.querySelector('.remove-service').addEventListener('click', removeService);
+  });
+
+  function addService(event) {
+    const categoryContainer = event.target.closest('.category-item');
+    const categoryIdx = categoryContainer.dataset.index;
+    const servicesContainer = categoryContainer.querySelector('.services-container');
+
+    let serviceIndex = servicesContainer.querySelectorAll('.service-item').length;
+
+    const serviceItem = document.createElement('div');
+    serviceItem.className = 'service-item';
+    serviceItem.innerHTML = `
+      <button type="button" class="remove-btn remove-service">❌</button>
+      <input type="text" name="categories[${categoryIdx}].services[${serviceIndex}].name" placeholder="Название услуги" required>
+      <input type="text" name="categories[${categoryIdx}].services[${serviceIndex}].duration" placeholder="Длительность" required>
+      <input type="text" name="categories[${categoryIdx}].services[${serviceIndex}].price" placeholder="Цена" required>
+    `;
+
+    servicesContainer.appendChild(serviceItem);
+
+    // Добавляем обработчик удаления для новой услуги
+    serviceItem.querySelector('.remove-service').addEventListener('click', removeService);
+  }
+
+  function removeCategory(event) {
+    const categoryContainer = event.target.closest('.category-item');
+    categoryContainer.remove();
+  }
+
+  function removeService(event) {
+    const serviceItem = event.target.closest('.service-item');
+    serviceItem.remove();
+  }
+
+  // Добавляем обработчики событий для уже существующих кнопок
+  document.querySelectorAll('.add-service').forEach(button => {
+    button.addEventListener('click', addService);
+  });
+
+  document.querySelectorAll('.remove-category').forEach(button => {
+    button.addEventListener('click', removeCategory);
+  });
+
+  document.querySelectorAll('.remove-service').forEach(button => {
+    button.addEventListener('click', removeService);
+  });
+
+
+
+
+
+document.getElementById('fileImage').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    const imageError = document.getElementById('imageError');
+    const thumbnail = document.getElementById('thumbnail');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const TARGET_WIDTH = 150;  // Фиксированная ширина
+    const TARGET_HEIGHT = 150; // Фиксированная высота
+
+    // Проверяем размер файла (макс. 1 МБ)
+    if (file && file.size > 1048576) {
+        imageError.style.display = "block";
+        thumbnail.src = "images/placeholder.jpg";
+        return;
+    }
+
+    imageError.style.display = "none";
+
+    reader.onload = function(e) {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = function() {
+            // Устанавливаем фиксированные размеры
+            canvas.width = TARGET_WIDTH;
+            canvas.height = TARGET_HEIGHT;
+
+            // Очищаем фон (чтобы не было артефактов)
+            ctx.clearRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+
+            // Обрезаем и центрируем изображение
+            let scale = Math.max(TARGET_WIDTH / img.width, TARGET_HEIGHT / img.height);
+            let x = (TARGET_WIDTH - img.width * scale) / 2;
+            let y = (TARGET_HEIGHT - img.height * scale) / 2;
+            ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+
+            // Устанавливаем новое изображение в превью
+            thumbnail.src = canvas.toDataURL("image/jpeg", 0.9); // Сжимаем до JPEG 90% качества
+        };
+    };
+
+    reader.readAsDataURL(file);
+});
+
+</script>
+
+</body>
+</html>
